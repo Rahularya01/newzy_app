@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
 import { router } from "expo-router";
+import { useResetPassword } from "~/hooks/api/auth/useResetPassword";
 
 const formSchema = z
   .object({
@@ -29,12 +30,21 @@ const formSchema = z
 type FormSchema = z.infer<typeof formSchema>;
 
 const ResetPasswordForm: React.FC = () => {
+  const { mutateAsync, isPending: isLoading } = useResetPassword();
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
-
-  const onSubmit = (data: FormSchema) => {
-    router.replace("/(auth)/sign-in");
+  const onSubmit = async (data: FormSchema) => {
+    try {
+      await mutateAsync({
+        password: data.password,
+        password_confirmation: data.confirmPassword,
+      });
+      router.replace("/(auth)/sign-in");
+    } catch (error) {
+      console.error("Password reset failed", error);
+    }
   };
 
   return (

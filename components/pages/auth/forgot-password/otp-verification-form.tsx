@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { OtpInput } from "react-native-otp-entry";
 import { router } from "expo-router";
+import { useVerifyOtp } from "~/hooks/api/auth/useVerifyOtp";
 
 const formSchema = z.object({
   otp: z
@@ -19,13 +20,13 @@ const formSchema = z.object({
 type FormSchema = z.infer<typeof formSchema>;
 
 const OtpVerificationForm: React.FC = () => {
+  const { mutateAsync, isPending } = useVerifyOtp();
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: FormSchema) => {
-    router.replace("/(auth)/reset-password");
-  };
+  const onSubmit = (data: FormSchema) => {};
 
   return (
     <View className="mt-[30px] w-full">

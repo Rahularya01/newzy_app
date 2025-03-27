@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
 import { Link, router } from "expo-router";
+import { useSignup } from "~/hooks/api/auth/useSignup";
 
 const formSchema = z
   .object({
@@ -40,12 +41,29 @@ const formSchema = z
 type FormSchema = z.infer<typeof formSchema>;
 
 const RegisterForm: React.FC = () => {
+  const { mutateAsync, isPending: isLoading } = useSignup();
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: FormSchema) => {
-    router.push("/sign-up-questions");
+  const onSubmit = async (data: FormSchema) => {
+    try {
+      const response = await mutateAsync({
+        name: `${data.firstName} ${data.lastName}`, // Fixed name formatting
+        email: data.email,
+        password: data.password,
+        password_confirmation: data.confirmPassword, // Corrected field name
+      });
+
+      if (response.success) {
+        router.push("/sign-up-questions");
+      } else {
+        alert(response.message || "Signup failed!");
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "An error occurred");
+    }
   };
 
   return (
@@ -125,7 +143,7 @@ const RegisterForm: React.FC = () => {
           )}
         />
 
-        <Button onPress={form.handleSubmit(onSubmit)}>
+        <Button disabled={isLoading} onPress={form.handleSubmit(onSubmit)}>
           <Text>Sign Up</Text>
         </Button>
       </View>
