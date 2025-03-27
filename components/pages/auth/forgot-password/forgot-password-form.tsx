@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
 import { router } from "expo-router";
+import { useForgotPassword } from "~/hooks/api/auth/useForgotPassword";
 
 const formSchema = z.object({
   email: z
@@ -19,11 +20,16 @@ const formSchema = z.object({
 type FormSchema = z.infer<typeof formSchema>;
 
 const ForgotPasswordForm: React.FC = () => {
+  const { mutateAsync, isPending: isLoading } = useForgotPassword();
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: FormSchema) => {
+  const onSubmit = async (data: FormSchema) => {
+    await mutateAsync({
+      email: data.email,
+    });
     router.push("/(auth)/otp-verification");
   };
 
@@ -45,7 +51,7 @@ const ForgotPasswordForm: React.FC = () => {
           )}
         />
 
-        <Button onPress={form.handleSubmit(onSubmit)}>
+        <Button disabled={isLoading} onPress={form.handleSubmit(onSubmit)}>
           <Text>Submit</Text>
         </Button>
       </View>
