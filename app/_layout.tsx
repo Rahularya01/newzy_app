@@ -21,6 +21,7 @@ import { PortalHost } from "@rn-primitives/portal";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -28,6 +29,8 @@ const LIGHT_THEME: Theme = {
 };
 
 export { ErrorBoundary } from "expo-router";
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -51,24 +54,26 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView>
-      <ThemeProvider value={LIGHT_THEME}>
-        <StatusBar style={"auto"} />
-        <Stack>
-          <Stack.Screen
-            name="index"
-            options={{
-              title: "Starter Base",
-              headerRight: () => <ThemeToggle />,
-            }}
-          />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="profile" options={{ headerShown: false }} />h
-          <Stack.Screen name="news" options={{ headerShown: false }} />h
-        </Stack>
-        <PortalHost />
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView>
+        <ThemeProvider value={LIGHT_THEME}>
+          <StatusBar style={"auto"} />
+          <Stack>
+            <Stack.Screen
+              name="index"
+              options={{
+                title: "Starter Base",
+                headerRight: () => <ThemeToggle />,
+              }}
+            />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="profile" options={{ headerShown: false }} />h
+            <Stack.Screen name="news" options={{ headerShown: false }} />h
+          </Stack>
+          <PortalHost />
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }

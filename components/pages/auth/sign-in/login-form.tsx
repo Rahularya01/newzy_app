@@ -6,9 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { GoogleIcon } from "~/assets/icons/google-icon";
 import { AppleIcon } from "~/assets/icons/apple-icon";
+import { useLogin } from "~/hooks/api/auth/useLogin";
 
 const formSchema = z.object({
   email: z
@@ -26,12 +27,27 @@ const formSchema = z.object({
 type FormSchema = z.infer<typeof formSchema>;
 
 const LoginForm: React.FC = () => {
+  const { mutateAsync, isPending: isLoading } = useLogin();
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: FormSchema) => {
-    router.replace("/(tabs)/home");
+  const onSubmit = async (data: FormSchema) => {
+    await mutateAsync(
+      {
+        email: data.email,
+        password: data.password,
+      },
+      {
+        onSuccess(data) {
+          const token = data.data.token;
+        },
+        onError(error, variables, context) {
+          alert(error.response?.data.message);
+        },
+      },
+    );
   };
 
   return (
@@ -74,7 +90,7 @@ const LoginForm: React.FC = () => {
         >
           Forgot your password?
         </Link>
-        <Button onPress={form.handleSubmit(onSubmit)}>
+        <Button disabled={isLoading} onPress={form.handleSubmit(onSubmit)}>
           <Text>Sign In</Text>
         </Button>
       </View>
