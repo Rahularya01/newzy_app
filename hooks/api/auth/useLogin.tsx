@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { http } from "~/lib/http";
 import { objectToFormData } from "~/lib/utils";
-import { MutationOptions } from "~/types/common";
+import { APIResponse, MutationOptions } from "~/types/common";
 
 export interface LoginPayload {
   email: string;
@@ -13,7 +13,7 @@ export interface LoginResponse {
 }
 
 export const useLogin = (
-  mutationOptions?: MutationOptions<LoginResponse, LoginPayload>,
+  mutationOptions?: MutationOptions<APIResponse<LoginResponse>, LoginPayload>,
 ) => {
   return useMutation({
     ...mutationOptions,

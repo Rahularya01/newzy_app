@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { http } from "~/lib/http";
 import { objectToFormData } from "~/lib/utils";
-import { MutationOptions, MutationOptionstwo } from "~/types/common";
+import { MutationOptions } from "~/types/common";
 
 export interface ForgotPasswordPayload {
   email: string;
@@ -12,7 +12,7 @@ export interface ForgotPasswordResponse {
 }
 
 export const useForgotPassword = (
-  mutationOptions?: MutationOptionstwo<
+  mutationOptions?: MutationOptions<
     ForgotPasswordResponse,
     ForgotPasswordPayload
   >,

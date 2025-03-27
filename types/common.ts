@@ -8,26 +8,14 @@ export interface APIResponse<T> {
   errors?: any;
 }
 
-export interface ForgotPasswordResponse {
-  errors?: any;
-  Status: string;
-}
-
 export interface QueryOptions<T, K>
   extends UseQueryOptions<
-    APIResponse<T>,
+    T,
     AxiosError<APIResponse<any>>,
-    APIResponse<T>,
+    T,
     // @ts-ignore
     K
   > {}
 
 export interface MutationOptions<T, P>
-  extends UseMutationOptions<APIResponse<T>, AxiosError<APIResponse<any>>, P> {}
-
-export interface MutationOptionstwo<T, P>
-  extends UseMutationOptions<
-    ForgotPasswordResponse,
-    AxiosError<ForgotPasswordResponse>,
-    P
-  > {}
+  extends UseMutationOptions<T, AxiosError<APIResponse<any>>, P> {}
