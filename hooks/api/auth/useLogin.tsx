@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { http } from "~/lib/http";
+import { objectToFormData } from "~/lib/utils";
 import { MutationOptions } from "~/types/common";
 
 export interface LoginPayload {
@@ -17,7 +18,8 @@ export const useLogin = (
   return useMutation({
     ...mutationOptions,
     mutationFn: async (payload) => {
-      const { data } = await http.post("/login", payload);
+      const formData = objectToFormData(payload);
+      const { data } = await http.post("/login", formData);
       return data;
     },
   });
