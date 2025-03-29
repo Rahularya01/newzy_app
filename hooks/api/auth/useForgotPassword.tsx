@@ -5,6 +5,7 @@ import { MutationOptions } from "~/types/common";
 
 export interface ForgotPasswordPayload {
   email: string;
+  type: "password_reset";
 }
 
 export interface ForgotPasswordResponse {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "~/components/ui/button";
@@ -27,10 +27,24 @@ const ForgotPasswordForm: React.FC = () => {
   });
 
   const onSubmit = async (data: FormSchema) => {
-    await mutateAsync({
-      email: data.email,
-    });
-    router.push("/(auth)/otp-verification");
+    await mutateAsync(
+      {
+        email: data.email,
+        type: "password_reset",
+      },
+      {
+        onSuccess: async (data) => {
+          router.push("/(auth)/otp-verification");
+        },
+        onError: (error) => {
+          console.error("Request failed", error);
+          Alert.alert(
+            "Error!",
+            error.response?.data.message || "An error occurred during login",
+          );
+        },
+      },
+    );
   };
 
   return (

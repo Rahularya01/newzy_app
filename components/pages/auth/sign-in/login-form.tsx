@@ -6,10 +6,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { GoogleIcon } from "~/assets/icons/google-icon";
 import { AppleIcon } from "~/assets/icons/apple-icon";
 import { useLogin } from "~/hooks/api/auth/useLogin";
+import * as SecureStore from "expo-secure-store";
+import { Alert } from "react-native";
 
 const formSchema = z.object({
   email: z
@@ -26,12 +28,24 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
+// Key for storing the auth token
+export const AUTH_TOKEN_KEY = "auth_token";
+
 const LoginForm: React.FC = () => {
   const { mutateAsync, isPending: isLoading } = useLogin();
+  const router = useRouter();
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
+
+  const storeToken = async (token: string) => {
+    try {
+      await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
+    } catch (error) {
+      console.error("Failed to save the token", error);
+    }
+  };
 
   const onSubmit = async (data: FormSchema) => {
     await mutateAsync(
@@ -40,11 +54,18 @@ const LoginForm: React.FC = () => {
         password: data.password,
       },
       {
-        onSuccess(data) {
+        onSuccess: async (data) => {
           const token = data.data.token;
+          await storeToken(token);
+          // Redirect to home screen or wherever you want
+          router.replace("/(tabs)/home");
         },
-        onError(error, variables, context) {
-          alert(error.response?.data.message);
+        onError: (error) => {
+          console.error("Login failed", error.toJSON());
+          Alert.alert(
+            "Login Failed",
+            error.response?.data.message || "An error occurred during login",
+          );
         },
       },
     );
@@ -91,7 +112,7 @@ const LoginForm: React.FC = () => {
           Forgot your password?
         </Link>
         <Button disabled={isLoading} onPress={form.handleSubmit(onSubmit)}>
-          <Text>Sign In</Text>
+          <Text>{isLoading ? "Signing In..." : "Sign In"}</Text>
         </Button>
       </View>
 
