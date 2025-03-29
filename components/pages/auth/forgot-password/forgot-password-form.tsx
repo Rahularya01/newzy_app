@@ -26,17 +26,17 @@ const ForgotPasswordForm: React.FC = () => {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = async (data: FormSchema) => {
+  const onSubmit = async (values: FormSchema) => {
     await mutateAsync(
       {
-        email: data.email,
+        email: values.email,
         type: "password_reset",
       },
       {
-        onSuccess: async (data) => {
+        onSuccess: async () => {
           router.push({
             pathname: "/(auth)/otp-verification",
-            params: { email: data.email },
+            params: { email: values.email },
           });
         },
         onError: (error) => {
