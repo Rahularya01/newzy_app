@@ -26,7 +26,7 @@ const formSchema = z
       .string({
         required_error: "Password is required",
       })
-      .min(6, "Password must be at least 6 characters"),
+      .min(8, "Password must be at least 8 characters"),
     confirmPassword: z
       .string({
         required_error: "Confirm password is required",
@@ -48,13 +48,15 @@ const RegisterForm: React.FC = () => {
   });
 
   const onSubmit = async (data: FormSchema) => {
+    const formattedData = {
+      name: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+      password: data.password,
+      password_confirmation: data.confirmPassword,
+    };
+    console.log(formattedData);
     try {
-      const response = await mutateAsync({
-        name: `${data.firstName} ${data.lastName}`, // Fixed name formatting
-        email: data.email,
-        password: data.password,
-        password_confirmation: data.confirmPassword, // Corrected field name
-      });
+      const response = await mutateAsync(formattedData);
 
       if (response.success) {
         router.push("/sign-up-questions");

@@ -23,9 +23,17 @@ export const useSignup = (
   return useMutation({
     ...mutationOptions,
     mutationFn: async (payload) => {
-      const formData = objectToFormData(payload);
-      const { data } = await http.post("/Register/Customer", formData);
-      return data;
+      try {
+        const formData = objectToFormData(payload);
+        const { data } = await http.post("/Register/Customer", formData);
+        return data;
+      } catch (error) {
+        console.error(
+          "Signup Error:",
+          JSON.stringify(error.response?.data, null, 2),
+        );
+        throw error;
+      }
     },
   });
 };

@@ -13,9 +13,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#006163"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.newzy.ca"
     },
     "android": {
       "package": "com.newzy.ca",
@@ -29,7 +32,11 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": ["expo-router", "expo-font", "expo-secure-store"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store"
+    ],
     "experiments": {
       "typedRoutes": true
     }
