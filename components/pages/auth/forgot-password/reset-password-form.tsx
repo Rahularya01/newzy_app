@@ -9,6 +9,7 @@ import { Input } from "~/components/ui/input";
 import { router } from "expo-router";
 import { useResetPassword } from "~/hooks/api/auth/useResetPassword";
 
+//TODO - Get mail from local search params directly or pass it from otp verification if not found
 const formSchema = z
   .object({
     password: z

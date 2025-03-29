@@ -15,7 +15,7 @@ const formSchema = z.object({
     .string({
       required_error: "OTP is required",
     })
-    .min(6, "OTP must be at least 6 characters"),
+    .min(5, "OTP must be at least 5 characters"),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -37,7 +37,7 @@ const OtpVerificationForm: React.FC = () => {
       },
       {
         onSuccess: async (data) => {
-          router.push();
+          router.push("/(auth)/reset-password");
         },
         onError: (error) => {
           console.error("Request failed", error);
@@ -58,9 +58,9 @@ const OtpVerificationForm: React.FC = () => {
           name="otp"
           render={({ field }) => (
             <OtpInput
-              numberOfDigits={6}
+              numberOfDigits={5}
               onTextChange={field.onChange}
-              placeholder="••••••"
+              placeholder="•••••"
               hideStick
               theme={{
                 containerStyle: {
