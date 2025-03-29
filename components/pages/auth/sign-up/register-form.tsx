@@ -54,7 +54,6 @@ const RegisterForm: React.FC = () => {
       password: data.password,
       password_confirmation: data.confirmPassword,
     };
-    console.log(formattedData);
     try {
       const response = await mutateAsync(formattedData);
 

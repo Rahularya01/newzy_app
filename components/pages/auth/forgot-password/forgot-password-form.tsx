@@ -34,7 +34,10 @@ const ForgotPasswordForm: React.FC = () => {
       },
       {
         onSuccess: async (data) => {
-          router.push("/(auth)/otp-verification");
+          router.push({
+            pathname: "/(auth)/otp-verification",
+            params: { email: data.email },
+          });
         },
         onError: (error) => {
           console.error("Request failed", error);
