@@ -1,8 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { http } from "~/lib/http";
+import { objectToFormData } from "~/lib/utils";
 import { APIResponse, MutationOptions } from "~/types/common";
 
 interface ResetPasswordRequest {
+  email: string;
   password: string;
   password_confirmation: string;
 }
@@ -19,9 +21,10 @@ export const useResetPassword = (
 ) => {
   return useMutation({
     ...mutationOptions,
-    mutationFn: async (data: ResetPasswordRequest) => {
-      const response = await http.post("/Change/Password", data);
-      return response.data;
+    mutationFn: async (payload) => {
+      const formData = objectToFormData(payload);
+      const { data } = await http.post("/Change/Password", formData);
+      return data;
     },
   });
 };

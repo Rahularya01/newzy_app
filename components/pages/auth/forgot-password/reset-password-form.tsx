@@ -1,6 +1,6 @@
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "~/components/ui/button";
@@ -8,6 +8,7 @@ import { Text } from "~/components/ui/text";
 import { Input } from "~/components/ui/input";
 import { router } from "expo-router";
 import { useResetPassword } from "~/hooks/api/auth/useResetPassword";
+import { useLocalSearchParams } from "expo-router";
 
 const formSchema = z
   .object({
@@ -15,12 +16,12 @@ const formSchema = z
       .string({
         required_error: "Password is required",
       })
-      .min(6, "Password must be at least 6 characters"),
+      .min(8, "Password must be at least 8 characters"),
     confirmPassword: z
       .string({
         required_error: "Password is required",
       })
-      .min(6, "Password must be at least 6 characters"),
+      .min(8, "Password must be at least 8 characters"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -31,20 +32,31 @@ type FormSchema = z.infer<typeof formSchema>;
 
 const ResetPasswordForm: React.FC = () => {
   const { mutateAsync, isPending: isLoading } = useResetPassword();
-
+  const { email } = useLocalSearchParams();
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
   const onSubmit = async (data: FormSchema) => {
-    try {
-      await mutateAsync({
+    await mutateAsync(
+      {
         password: data.password,
         password_confirmation: data.confirmPassword,
-      });
-      router.replace("/(auth)/sign-in");
-    } catch (error) {
-      console.error("Password reset failed", error);
-    }
+        email,
+      },
+      {
+        onSuccess: async (data) => {
+          router.push("/(auth)/sign-in");
+        },
+        onError: (error) => {
+          console.error("Request failed", error);
+          Alert.alert(
+            "Error!",
+            error.response?.data.message ||
+              "An error occurred during changing password",
+          );
+        },
+      },
+    );
   };
 
   return (
@@ -82,7 +94,7 @@ const ResetPasswordForm: React.FC = () => {
           )}
         />
 
-        <Button onPress={form.handleSubmit(onSubmit)}>
+        <Button disabled={isLoading} onPress={form.handleSubmit(onSubmit)}>
           <Text>Save</Text>
         </Button>
       </View>
