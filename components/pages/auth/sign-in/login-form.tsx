@@ -10,8 +10,8 @@ import { Link, useRouter } from "expo-router";
 import { GoogleIcon } from "~/assets/icons/google-icon";
 import { AppleIcon } from "~/assets/icons/apple-icon";
 import { useLogin } from "~/hooks/api/auth/useLogin";
-import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
+import { useAuthToken } from "~/hooks/api/auth/useAuthToken";
 
 const formSchema = z.object({
   email: z
@@ -28,24 +28,17 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-// Key for storing the auth token
-export const AUTH_TOKEN_KEY = "auth_token";
-
 const LoginForm: React.FC = () => {
   const { mutateAsync, isPending: isLoading } = useLogin();
   const router = useRouter();
-
+  const { data: token } = useAuthToken();
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
-
-  const storeToken = async (token: string) => {
-    try {
-      await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
-    } catch (error) {
-      console.error("Failed to save the token", error);
-    }
-  };
+  if (token) {
+    router.replace("/(tabs)/home");
+    return null;
+  }
 
   const onSubmit = async (data: FormSchema) => {
     await mutateAsync(
@@ -55,9 +48,6 @@ const LoginForm: React.FC = () => {
       },
       {
         onSuccess: async (data) => {
-          const token = data.data.token;
-          await storeToken(token);
-          // Redirect to home screen or wherever you want
           router.replace("/(tabs)/home");
         },
         onError: (error) => {
