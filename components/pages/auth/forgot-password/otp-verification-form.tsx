@@ -15,7 +15,7 @@ const formSchema = z.object({
     .string({
       required_error: "OTP is required",
     })
-    .min(5, "OTP must be at least 5 characters"),
+    .min(6, "OTP must be at least 6 characters"),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -28,22 +28,25 @@ const OtpVerificationForm: React.FC = () => {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = async (data: FormSchema) => {
+  const onSubmit = async (values: FormSchema) => {
     await mutateAsync(
       {
-        code: data.otp,
+        code: values.otp,
         type: "password_reset",
         email,
       },
       {
-        onSuccess: async (data) => {
-          router.push("/(auth)/reset-password");
+        onSuccess: async () => {
+          router.push(
+            `/(auth)/reset-password?email=${encodeURIComponent(email)}`,
+          );
         },
         onError: (error) => {
           console.error("Request failed", error);
           Alert.alert(
             "Error!",
-            error.response?.data.message || "An error occurred during login",
+            error.response?.data.message ||
+              "An error occurred during verifying",
           );
         },
       },
@@ -58,9 +61,9 @@ const OtpVerificationForm: React.FC = () => {
           name="otp"
           render={({ field }) => (
             <OtpInput
-              numberOfDigits={5}
+              numberOfDigits={6}
               onTextChange={field.onChange}
-              placeholder="•••••"
+              placeholder="••••••"
               hideStick
               theme={{
                 containerStyle: {
