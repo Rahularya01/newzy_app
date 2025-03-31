@@ -7,6 +7,8 @@ import { Text } from "~/components/ui/text";
 import { Button } from "~/components/ui/button";
 import { router } from "expo-router";
 import { Check, ChevronDown } from "lucide-react-native";
+import { useLocalSearchParams } from "expo-router";
+import { useCustomerProfileData } from "~/hooks/api/auth/useCustomerProfileData";
 
 const LANGUAGES = [
   { name: "English", flag: require("~/assets/images/flags/english.png") },
@@ -20,8 +22,45 @@ const LANGUAGES = [
 ];
 
 const Language: React.FC = () => {
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("English");
+  const { mutateAsync, isPending: isLoading } = useCustomerProfileData();
+  const params = useLocalSearchParams();
 
+  const formData = params.formData ? JSON.parse(params.formData as string) : {};
+  const interests = params.interests
+    ? JSON.parse(params.interests as string)
+    : [];
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("English");
+  const [selectedProvince, setSelectedProvince] = useState<string>("");
+
+  const handleSubmit = async () => {
+    if (!selectedProvince) {
+      alert("Please select a province");
+      return;
+    }
+
+    const payload = {
+      gender: formData.gender,
+      interests: JSON.stringify(interests),
+      visa_type: formData.visa_type,
+      notification: formData.notification ? 1 : 0,
+      language: selectedLanguage,
+      province: selectedProvince,
+      other_user_connect: formData.other_user_connect ? 1 : 0,
+      premium_features: formData.premium_features ? 1 : 0,
+    };
+
+    try {
+      const response = await mutateAsync(payload);
+
+      if (response.success) {
+        router.push("/review");
+      } else {
+        alert(response.message);
+      }
+    } catch (error: any) {
+      alert("Something went wrong: " + error.message);
+    }
+  };
   return (
     <SafeAreaView className="h-full flex-1 justify-between bg-[#f4f4f4]/70 px-5 pb-5">
       <View className="pt-5">
@@ -71,24 +110,25 @@ const Language: React.FC = () => {
             })}
           </View>
 
-          {/* Province Dropdown */}
           <Text className="mt-7 font-inter-700 text-[14px] font-bold text-[#222]">
             Province
           </Text>
-          <Pressable className="mt-4 h-[60px] flex-row items-center justify-between rounded-full border border-[#ccc] bg-white px-5 py-3">
+          <Pressable
+            onPress={() => {
+              // Open province selection modal (you need to implement this)
+            }}
+            className="mt-4 h-[60px] flex-row items-center justify-between rounded-full border border-[#ccc] bg-white px-5 py-3"
+          >
             <Text className="font-inter-400 text-[14px] text-[#777]">
-              Select your province
+              {selectedProvince || "Select your province"}
             </Text>
             <ChevronDown size={24} color="black" />
           </Pressable>
         </View>
       </View>
-      <Button
-        onPress={() => {
-          router.push("/review");
-        }}
-      >
-        <Text>Continue</Text>
+
+      <Button onPress={handleSubmit} disabled={isLoading}>
+        <Text>{isLoading ? "Loading..." : "Continue"}</Text>
       </Button>
     </SafeAreaView>
   );
