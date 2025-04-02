@@ -79,7 +79,13 @@ const SignUpQuestion: React.FC = () => {
     if (receivedData.length === 0)
       return alert("Please select at least one interest");
 
-    router.push("/language");
+    router.push({
+      pathname: "/language",
+      params: {
+        formData: JSON.stringify(data),
+        interests: JSON.stringify(receivedData),
+      },
+    });
   };
 
   return (
