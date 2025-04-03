@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import { GalleryThumbnails } from "lucide-react-native";
 
 const http = axios.create({
   baseURL: "https://newzy.ca/api",

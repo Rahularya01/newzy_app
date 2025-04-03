@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, TouchableOpacity, Pressable, Image } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  Image,
+  Pressable,
+  FlatList,
+  Modal,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BackButton from "~/components/back-button";
 import { cn } from "~/lib/utils";
@@ -9,17 +16,8 @@ import { router } from "expo-router";
 import { Check, ChevronDown } from "lucide-react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useCustomerProfileData } from "~/hooks/api/auth/useCustomerProfileData";
-
-const LANGUAGES = [
-  { name: "English", flag: require("~/assets/images/flags/english.png") },
-  { name: "Chinese", flag: require("~/assets/images/flags/chinese.png") },
-  { name: "Spanish", flag: require("~/assets/images/flags/spanish.png") },
-  { name: "Russian", flag: require("~/assets/images/flags/russian.png") },
-  { name: "Portuguese", flag: require("~/assets/images/flags/portuguese.png") },
-  { name: "French", flag: require("~/assets/images/flags/french.png") },
-  { name: "Italian", flag: require("~/assets/images/flags/italian.png") },
-  { name: "Swedish", flag: require("~/assets/images/flags/swedish.png") },
-];
+import { LANGUAGES } from "~/constants/languages";
+import { COUNTRIES } from "~/constants/provinces";
 
 const Language: React.FC = () => {
   const { mutateAsync, isPending: isLoading } = useCustomerProfileData();
@@ -31,10 +29,11 @@ const Language: React.FC = () => {
     : [];
   const [selectedLanguage, setSelectedLanguage] = useState<string>("English");
   const [selectedProvince, setSelectedProvince] = useState<string>("");
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   const handleSubmit = async () => {
     if (!selectedProvince) {
-      alert("Please select a province");
+      alert("Please select a Province");
       return;
     }
 
@@ -44,7 +43,7 @@ const Language: React.FC = () => {
       visa_type: formData.visa_type,
       notification: formData.notification ? 1 : 0,
       language: selectedLanguage,
-      province: selectedProvince,
+      Province: selectedProvince,
       other_user_connect: formData.other_user_connect ? 1 : 0,
       premium_features: formData.premium_features ? 1 : 0,
     };
@@ -61,6 +60,7 @@ const Language: React.FC = () => {
       alert("Something went wrong: " + error.message);
     }
   };
+
   return (
     <SafeAreaView className="h-full flex-1 justify-between bg-[#f4f4f4]/70 px-5 pb-5">
       <View className="pt-5">
@@ -71,10 +71,9 @@ const Language: React.FC = () => {
           Language & Province
         </Text>
         <Text className="mt-2.5 text-center font-inter-400 text-[14px] text-[#6b6b6b]">
-          Select your language and province.
+          Select your preferred language and Province.
         </Text>
         <View className="w-full pt-14">
-          {/* Language Selection */}
           <Text className="mb-4 font-inter-700 text-[14px] font-bold text-[#222]">
             Language
           </Text>
@@ -104,7 +103,7 @@ const Language: React.FC = () => {
                   >
                     {name}
                   </Text>
-                  {isSelected && <Check size={18} color="white" className="" />}
+                  {isSelected && <Check size={18} color="white" />}
                 </TouchableOpacity>
               );
             })}
@@ -114,13 +113,11 @@ const Language: React.FC = () => {
             Province
           </Text>
           <Pressable
-            onPress={() => {
-              // Open province selection modal (you need to implement this)
-            }}
             className="mt-4 h-[60px] flex-row items-center justify-between rounded-full border border-[#ccc] bg-white px-5 py-3"
+            onPress={() => setModalVisible(true)}
           >
             <Text className="font-inter-400 text-[14px] text-[#777]">
-              {selectedProvince || "Select your province"}
+              {selectedProvince || "Select your Province"}
             </Text>
             <ChevronDown size={24} color="black" />
           </Pressable>
@@ -130,6 +127,28 @@ const Language: React.FC = () => {
       <Button onPress={handleSubmit} disabled={isLoading}>
         <Text>{isLoading ? "Loading..." : "Continue"}</Text>
       </Button>
+
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View className="flex-1 justify-center bg-black/50">
+          <View className="mx-5 max-h-[80%] rounded-lg bg-white p-5">
+            <FlatList
+              data={COUNTRIES}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  className="border-b border-gray-200 p-4"
+                  onPress={() => {
+                    setSelectedProvince(item);
+                    setModalVisible(false);
+                  }}
+                >
+                  <Text className="text-lg text-[#222]">{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

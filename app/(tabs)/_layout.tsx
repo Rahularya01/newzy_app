@@ -12,6 +12,7 @@ import { SearchIcon } from "~/assets/icons/search-icon";
 import { SettingsIcon } from "~/assets/icons/settings";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Text } from "~/components/ui/text";
+import { useCustomerProfile } from "~/hooks/api/auth/useCustomerProfile";
 
 // Get the screen height
 const { height } = Dimensions.get("window");
@@ -21,6 +22,7 @@ export const HEADER_HEIGHT = height * (Platform.OS === "ios" ? 0.17 : 0.16); // 
 
 const TabsLayout: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { data: user, isLoading } = useCustomerProfile();
   return (
     <Tabs
       screenOptions={{
@@ -70,7 +72,7 @@ const TabsLayout: React.FC = () => {
                     Hi!
                   </Text>
                   <Text className="mb-1.5 mt-1 font-merriweather-sans-800 text-[18px] leading-[18px] text-primary">
-                    Jane Deo
+                    {isLoading ? "Loading..." : user?.name || "Guest"}
                   </Text>
                   <TouchableOpacity
                     onPress={() => {
