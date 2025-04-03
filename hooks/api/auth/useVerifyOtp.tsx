@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { http } from "~/lib/http";
+import { objectToFormData } from "~/lib/utils";
 import { APIResponse, MutationOptions } from "~/types/common";
 
 export interface VerifyOtpResponse {
@@ -22,7 +23,8 @@ export const useVerifyOtp = (
   return useMutation({
     ...mutationOptions,
     mutationFn: async (payload: VerifyOtpRequest) => {
-      const { data } = await http.post("/Verify/Otp", payload);
+      const formData = objectToFormData(payload);
+      const { data } = await http.post("/Verify/Otp", formData);
       return data;
     },
   });

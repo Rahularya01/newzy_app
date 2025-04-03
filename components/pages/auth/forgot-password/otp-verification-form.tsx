@@ -28,22 +28,25 @@ const OtpVerificationForm: React.FC = () => {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = async (data: FormSchema) => {
+  const onSubmit = async (values: FormSchema) => {
     await mutateAsync(
       {
-        code: data.otp,
+        code: values.otp,
         type: "password_reset",
         email,
       },
       {
-        onSuccess: async (data) => {
-          router.push();
+        onSuccess: async () => {
+          router.push(
+            `/(auth)/reset-password?email=${encodeURIComponent(email)}`,
+          );
         },
         onError: (error) => {
           console.error("Request failed", error);
           Alert.alert(
             "Error!",
-            error.response?.data.message || "An error occurred during login",
+            error.response?.data.message ||
+              "An error occurred during verifying",
           );
         },
       },
