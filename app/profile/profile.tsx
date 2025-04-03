@@ -1,14 +1,33 @@
 import { router } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, ActivityIndicator } from "react-native";
 import { DeleteAccountModal } from "~/components/pages/profile/delete-account-modal";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
+import { useCustomerProfile } from "~/hooks/api/auth/useCustomerProfile";
 
 const ProfileScreen: React.FC = () => {
   const [open, setOpen] = React.useState(false);
+  const { data: user, isLoading, error } = useCustomerProfile();
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#006163" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text className="text-red-500">Failed to load profile</Text>
+      </View>
+    );
+  }
+
   return (
     <>
       <DeleteAccountModal open={open} onOpenChange={setOpen} />
@@ -17,20 +36,25 @@ const ProfileScreen: React.FC = () => {
         className="bg-white"
       >
         <View className="items-center justify-center">
-          <Avatar alt="Zach Nugent's Avatar" className="h-[120px] w-[120px]">
+          <Avatar
+            alt={`${user?.name}'s Avatar`}
+            className="h-[120px] w-[120px]"
+          >
             <AvatarImage
               source={{
-                uri: "https://s3-alpha-sig.figma.com/img/fd48/aa3e/9f7bfe711cbd1fbe55a9b509a1dbe7c4?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=bNG5MrlA83x0NSnCTBJVmqo8uPUsJofn-ijErdPpgA27hWW6XSU9lzgRAg3lfHf6D07uLFyIIuB-7gjiaSCkzq087tZCg1fQJ3bOH4mr1CWFuQXhOh1zPUJB-55YcYbkY9ja36ec0pFDNAjFwqduhdGBQIy8-6e1L0X~qXJvMKLBc0b0GHk0O~7ck8kpK6JptytkkRYyDFG2P2I5bXbvVqnlYWBTsObX16FD5Q2SiXMvlRUVSwTwOfzMF30be~vypCU0Kgw3NCSx-ZbsrK5XEcsEb3QE4edj1i~6sYjzL-wqbRXRmApL~qFWCr8C7Un4iW8lcZ~yUIfNRfgU4ZHdAA__",
+                uri:
+                  user?.profile_information?.profile_image ||
+                  "https://via.placeholder.com/120",
               }}
             />
             <AvatarFallback>
-              <Text>ZN</Text>
+              <Text>{user?.name?.charAt(0) || "U"}</Text>
             </AvatarFallback>
           </Avatar>
           <Text className="mb-[5px] mt-[15px] font-merriweather-sans-800 text-[32px] leading-10 text-primary">
-            Jane Deo
+            {user?.name || "Unknown User"}
           </Text>
-          <Text>janedeo@example.com</Text>
+          <Text>{user?.email || "No email provided"}</Text>
           <Button
             style={{
               height: 50,

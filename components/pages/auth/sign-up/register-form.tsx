@@ -47,18 +47,21 @@ const RegisterForm: React.FC = () => {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = async (data: FormSchema) => {
+  const onSubmit = async (values: FormSchema) => {
     const formattedData = {
-      name: `${data.firstName} ${data.lastName}`,
-      email: data.email,
-      password: data.password,
-      password_confirmation: data.confirmPassword,
+      name: `${values.firstName} ${values.lastName}`,
+      email: values.email,
+      password: values.password,
+      password_confirmation: values.confirmPassword,
     };
     try {
       const response = await mutateAsync(formattedData);
 
       if (response.success) {
-        router.push("/sign-up-questions");
+        router.push({
+          pathname: "/(auth)/account-verification",
+          params: { email: values.email },
+        });
       } else {
         alert(response.message || "Signup failed!");
       }
