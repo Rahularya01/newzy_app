@@ -3,6 +3,9 @@ import { View } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent } from "~/components/ui/dialog";
 import { Text } from "~/components/ui/text";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+
 import { useLogout } from "~/hooks/api/auth/useLogout";
 
 interface LogoutModalProps {
@@ -16,8 +19,12 @@ export const LogoutModal = ({ open, onOpenChange }: LogoutModalProps) => {
   const handleLogout = async () => {
     try {
       await mutateAsync(undefined, {
-        onSuccess() {
+        onSuccess: async () => {
+          await SecureStore.deleteItemAsync("authToken");
+
           onOpenChange(false);
+
+          router.replace("/(auth)/sign-in");
         },
         onError(error) {
           alert(error.response?.data?.message || "Logout failed!");
