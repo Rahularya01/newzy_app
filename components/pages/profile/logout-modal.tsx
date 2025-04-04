@@ -17,7 +17,7 @@ interface LogoutModalProps {
 export const LogoutModal = ({ open, onOpenChange }: LogoutModalProps) => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync, isPending: isLoading } = useLogout();
+  // const { mutateAsync, isPending: isLoading } = useLogout();
 
   // const handleLogout = async () => {
   //   await SecureStore.deleteItemAsync("authToken");
@@ -35,6 +35,7 @@ export const LogoutModal = ({ open, onOpenChange }: LogoutModalProps) => {
   //     console.error("Logout error:", err);
   //   }
   // };
+
   const handleLogout = async () => {
     try {
       await SecureStore.deleteItemAsync("authToken"); // Delete the stored token
@@ -80,6 +81,9 @@ export const LogoutModal = ({ open, onOpenChange }: LogoutModalProps) => {
             className="w-[48%]"
             style={{
               height: 50,
+            }}
+            onPress={() => {
+              onOpenChange(false); // Close the dialog without logging out
             }}
           >
             <Text>No</Text>
